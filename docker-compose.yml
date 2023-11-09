@@ -4,8 +4,20 @@ services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-
     volumes:
       - .:/app
     ports:
       - '8000:8000'
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_DB=django_db
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: django_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+
