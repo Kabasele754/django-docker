@@ -5,13 +5,14 @@ services:
       context: ../
       dockerfile: ./devops/Dockerfile
       args:
-        - DEV=true
+        - DEV= true
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/app
+      - ./app: /app
     command: >
       sh -c " python manage.py wait_for_db &&
+      python manage.py makemigrations &&
       python manage.py migrate &&
       python manage.py runserver 0.0.0.0:8000"
     environment:
@@ -24,12 +25,25 @@ services:
       - db
   db:
     image: postgres:13-alpine
+    # restart: always
     volumes:
-      - dev-db-data:/var/lib/postgresql/data
+      - dev-db-data: /var/lib/postgresql/data
     environment:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=devpass
+    ports:
+      - 5432:5432
+  pgamin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - 5050:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.com
+      - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+    depends_on:
+      - db
 
 volumes:
   dev-db-data:
